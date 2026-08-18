@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1B3A6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0F2347;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E6A8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00C48C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bgGrad)"/>
+
+  <!-- Subtle inner glow ring -->
+  <rect x="4" y="4" width="504" height="504" rx="110" ry="110" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4"/>
+
+  <!-- Letter K -->
+  <!-- Vertical bar of K -->
+  <rect x="96" y="148" width="56" height="216" rx="12" fill="white"/>
+  <!-- Upper diagonal of K -->
+  <path d="M148 148 L304 148 L304 196 L196 256 L148 256 Z" rx="10" fill="white" opacity="0.0"/>
+  <!-- K upper arm -->
+  <path d="M152 256 L296 155 Q308 147 316 155 L316 203 Q316 212 306 218 L164 304 Q155 309 148 304 L148 256 Z" fill="white"/>
+  <!-- K lower arm -->
+  <path d="M152 256 L296 357 Q308 365 300 374 L268 374 Q258 374 248 366 L148 304 L148 256 Z" fill="white"/>
+
+  <!-- Letter Y — split with emerald accent on right arm -->
+  <!-- Y left arm (white) -->
+  <path d="M336 148 L392 148 L392 148 L444 240 L444 364 Q444 374 434 374 L388 374 Q378 374 378 364 L378 268 L330 178 Q322 162 336 148 Z" fill="white" opacity="0"/>
+
+  <!-- Y left arm -->
+  <path d="M340 152 L384 152 Q394 152 400 164 L440 244 L440 364 Q440 372 432 374 L388 374 Q380 372 378 364 L378 262 L336 178 Q326 160 340 152 Z" fill="white"/>
+
+  <!-- Y right arm — emerald (the "profit arrow" side) -->
+  <path d="M440 244 L400 164 Q406 152 416 152 L456 152 Q468 154 462 168 L420 262 L420 364 Q418 374 410 374 L378 374 L378 262 Z" fill="url(#arrowGrad)"/>
+
+  <!-- Upward arrow tip on Y right arm — profit signal -->
+  <polygon points="456,152 416,152 408,100 432,68 464,100" fill="url(#arrowGrad)"/>
+  <polygon points="432,68 408,100 456,100" fill="#00E6A8" opacity="0.3"/>
+
+  <!-- Small emerald bar chart at bottom — profit indicator -->
+  <rect x="96" y="420" width="30" height="28" rx="6" fill="url(#arrowGrad)" opacity="0.6"/>
+  <rect x="134" y="408" width="30" height="40" rx="6" fill="url(#arrowGrad)" opacity="0.75"/>
+  <rect x="172" y="394" width="30" height="54" rx="6" fill="url(#arrowGrad)"/>
+
+  <!-- Dot accent -->
+  <circle cx="456" cy="420" r="22" fill="url(#arrowGrad)" opacity="0.18"/>
+  <circle cx="456" cy="420" r="12" fill="url(#arrowGrad)" opacity="0.5"/>
+  <circle cx="456" cy="420" r="5" fill="url(#arrowGrad)"/>
+</svg>
