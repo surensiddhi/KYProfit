@@ -1,22 +1,7 @@
 import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
-  plugins: [
-    VitePWA({
-      manifest: false,
-      injectRegister: null,
-      registerType: 'prompt',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,json}'],
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: false,
-        navigateFallbackDenylist: [/\.[a-zA-Z0-9]+$/],
-      },
-      devOptions: {
-        enabled: true,
-      },
-    }),
-  ],
-});
+// PWA (manifest + service worker) is handled by hand: manifest.json and
+// serviceworker.js both live in /public and are linked/registered manually
+// (see index.html and src/lib/pwa.js). No build plugin involved — keeps
+// the caching behavior simple and easy to debug.
+export default defineConfig({});

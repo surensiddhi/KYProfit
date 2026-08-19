@@ -23,16 +23,16 @@ window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
 // ── PWA install + update lifecycle ──
-let applyUpdate = null;
+let triggerUpdate = null;
 
 registerServiceWorker({
-  onUpdateAvailable: (updateSW) => {
-    applyUpdate = updateSW;
+  onUpdateAvailable: (apply) => {
+    triggerUpdate = apply;
     document.getElementById('update-banner').classList.add('show');
   },
 });
 
 document.getElementById('update-btn').addEventListener('click', () => {
-  // Passing true tells the SW to skip waiting and reload with the new version.
-  applyUpdate?.(true);
+  // Tells the waiting SW to activate; controllerchange (in pwa.js) reloads the page.
+  triggerUpdate?.();
 });
