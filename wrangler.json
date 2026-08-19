@@ -1,8 +1,16 @@
 {
-  "name": "kyprofit",
-  "compatibility_date": "2026-08-18",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "none"
-  }
+	"name": "kyprofit",
+	"compatibility_date": "2026-08-18",
+	"main": "src/worker.js",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"not_found_handling": "none"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "AUTH_KV",
+			"id": "1b133c636f5d496aa40a8bb012808c37"
+		}
+	]
 }

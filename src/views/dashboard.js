@@ -1,7 +1,9 @@
 // M1 placeholder Dashboard — static shell only.
 // Real data wiring happens in M4/M5 once /api/dashboard exists.
 
-export function renderDashboard() {
+export function renderDashboard({ email } = {}) {
+  const initial = (email || 'S').trim().charAt(0).toUpperCase();
+
   return `
     <div class="top-bar">
       <div class="row">
@@ -9,7 +11,7 @@ export function renderDashboard() {
           <div class="greeting">Good day</div>
           <div class="page-name">Dashboard</div>
         </div>
-        <div class="avatar">S</div>
+        <button class="avatar" id="avatar-btn" title="${email ? `Signed in as ${email} — tap to sign out` : 'Sign out'}">${initial}</button>
       </div>
     </div>
 

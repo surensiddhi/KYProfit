@@ -1,77 +1,121 @@
-# Deploying KYProfit to Cloudflare Pages (classic)
+# Deploying & configuring KYProfit
 
-This replaces the earlier "Workers with static assets" approach, which had
-Git auto-deploy reliability issues. Classic Pages is simpler and matches
-the proven setup already working for other projects (e.g. dcard.pages.dev).
+Current setup: a single Cloudflare Worker (`kyprofit`) serves both the PWA
+static assets and the `/api/*` backend routes, connected to GitHub for
+auto-deploy on every push to `main`.
 
-## 1. Update your local project
+## One-time setup already done
 
-Replace these files with the versions provided (they've already been
-rewritten to remove `vite-plugin-pwa` in favor of a plain, hand-written
-service worker):
+- GitHub repo `surensiddhi/KYProfit` connected to the Cloudflare Worker's
+  Git integration (Settings → Build)
+- Cloudflare's GitHub App was granted access to the `KYProfit` repo
+  specifically (this was the root cause of earlier "nothing changed"
+  deploys — fixed via github.com/settings/installations)
+- `workers.dev` subdomain enabled (Domains tab)
 
-- `vite.config.js`
-- `src/lib/pwa.js`
-- `src/main.js`
-- `public/serviceworker.js` (new file)
+## M2: Auth setup (do this once)
 
-Then reinstall dependencies (vite-plugin-pwa was removed):
+### 1. Update your local project
+
+Pull in these new/changed files:
+
+- `wrangler.json` (now includes `main`, `assets` binding, `kv_namespaces`)
+- `src/worker.js` (new — main Worker entry point)
+- `src/worker/auth.js` (new — login/logout/session logic)
+- `src/views/login.js` (new — real Login screen)
+- `src/views/dashboard.js` (updated — dynamic avatar, logout button)
+- `src/main.js` (updated — route guard, session check)
+- `src/style.css` (updated — login styles)
+- `scripts/hash-password.js` (new — local password hashing tool)
+- `.gitignore` (updated — ignores `.dev.vars`)
+- `package.json` / `package-lock.json` (added `bcryptjs`, `jose`)
+
+Then install the new dependencies:
 
 ```bash
 cd kyprofit
 npm install
 ```
 
-## 2. Commit and push
+### 2. Create the KV namespace (stores your hashed password)
+
+```bash
+npx wrangler kv namespace create AUTH_KV
+```
+
+This prints an `id`. Open `wrangler.json` and replace
+`REPLACE_WITH_YOUR_KV_NAMESPACE_ID` with that real id.
+
+### 3. Set the JWT signing secret
+
+This is a random secret used to sign login sessions — never commit it.
+
+```bash
+npx wrangler secret put JWT_SECRET
+```
+
+When prompted, paste any long random string (e.g. generate one with
+`openssl rand -base64 32`, or just mash the keyboard for 40+ characters).
+
+### 4. Choose your login email and password, hash it locally
+
+Pick whatever email/password you want to log in with — this never gets
+typed into a chat or committed to git, only used locally.
+
+```bash
+node scripts/hash-password.js "your-chosen-password"
+```
+
+Copy the printed hash.
+
+### 5. Store your admin account in KV (remote, production)
+
+```bash
+npx wrangler kv key put --binding=AUTH_KV --remote "admin:your-email@example.com" "PASTE_THE_HASH_HERE"
+```
+
+Use the same email (lowercase) you'll type into the Login screen.
+
+### 6. Commit and push
 
 ```bash
 git add .
-git commit -m "Simplify PWA: hand-written service worker, remove vite-plugin-pwa"
+git commit -m "M2: add auth — login/logout, JWT sessions, KV-backed password"
 git push
 ```
 
-## 3. Create a classic Pages project (separate from the old Workers one)
+Cloudflare auto-deploys within a minute or two (Deployments tab → new
+entry tagged `main`).
 
-1. Go to **dash.cloudflare.com → Workers & Pages**
-2. Click **Create application**
-3. Look for a **Pages** tab/option near the top of the creation screen
-   (separate from "Workers" — if you only see Workers options, look for a
-   toggle or a "Pages" link; take a screenshot if unsure and we'll adapt)
-4. Choose **Connect to Git**, select your `KYProfit` repo
-5. Build settings:
-   - **Framework preset:** Vite
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-6. Click **Save and Deploy**
+### 7. Verify
 
-This is the traditional Pages Git integration — it reliably auto-deploys
-on every push to `main`, no extra "Trigger events" configuration needed.
+- Visit your site — you should now see the **Login screen**, not the
+  dashboard directly
+- Log in with the email/password from step 4/5
+- You should land on the Dashboard, with your email's first letter shown
+  as the avatar
+- Tap the avatar → confirm → should sign you out, back to Login
+- Refresh the page while logged in — should stay on Dashboard (session
+  persists via cookie)
 
-## 4. Verify
-
-- Cloudflare gives you a `*.pages.dev` URL — open it on your phone
-- Check `/manifest.json` loads as raw JSON (not the dashboard page)
-- Check `/serviceworker.js` loads as raw JS
-- Try "Add to Home Screen" — the KYProfit icon should now offer to install
-- Turn on airplane mode, reload — the shell should still load
-
-## 5. Clean up (once the new deployment is confirmed working)
-
-- The old `kyprofit` Workers project can be deleted from
-  Workers & Pages — it's no longer needed once Pages is live
-- No need to touch GitHub or your local folder — same repo, same code,
-  just deployed through a different (more reliable) Cloudflare product
-
-## Local development (unchanged)
+## Local development
 
 ```bash
 npm install
-npm run dev       # local dev server with hot reload
+npm run dev       # frontend dev server with hot reload (no backend)
 npm run build     # production build → dist/
-npm run preview   # preview the production build locally
+
+# To test the full backend (auth, KV, etc.) locally:
+echo "JWT_SECRET=local-dev-secret" > .dev.vars
+npx wrangler dev --local
+# then seed a local test account:
+node scripts/hash-password.js "test123"
+npx wrangler kv key put --binding=AUTH_KV --local "admin:test@example.com" "PASTE_HASH"
 ```
+
+`.dev.vars` is gitignored — never gets committed.
 
 ---
 
-Once this is live and installable, come back and we'll start
-**M2 — Auth** (Cloudflare Worker + login flow).
+Once login works end-to-end, come back and we'll start **M3 — Google
+Sheets adapter** (the actual data layer for customers/invoices/payments).
