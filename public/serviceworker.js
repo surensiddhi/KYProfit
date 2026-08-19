@@ -62,6 +62,11 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // API calls: never cache, never intercept — always go straight to network.
+  if (url.pathname.indexOf("/api/") === 0) {
+    return;
+  }
+
   // Navigations: try network first so a new deploy is seen quickly, fall
   // back to the cached shell when offline.
   if (req.mode === "navigate") {
