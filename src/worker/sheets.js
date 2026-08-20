@@ -120,6 +120,11 @@ export async function listCustomers(env) {
   return rowsToObjects(rows, TABS.customers.columns).filter((c) => c.customer_id);
 }
 
+export async function getCustomerById(env, customerId) {
+  const all = await listCustomers(env);
+  return all.find((c) => c.customer_id === customerId) || null;
+}
+
 export async function createCustomer(env, data) {
   const customer = {
     customer_id: crypto.randomUUID(),
