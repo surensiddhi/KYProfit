@@ -53,6 +53,7 @@ body {
   flex-shrink: 0;
 }
 .top-bar .greeting { font-size: 12px; color: rgba(255,255,255,0.6); }
+.top-bar .greeting-company { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); margin-top: 1px; }
 .top-bar .page-name { font-size: 20px; font-weight: 800; margin-top: 2px; letter-spacing: -0.3px; }
 .top-bar .row { display: flex; justify-content: space-between; align-items: center; }
 .avatar {
@@ -357,23 +358,42 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
   font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
 }
 
-/* ── Customer list rows ── */
-.customer-list { display: flex; flex-direction: column; }
+/* ── Customer Profitability rows (Dashboard) — each row is its own
+   rounded, elevated card (native Android list-item look), with a visible
+   gap between records instead of one flat bordered block. ── */
+.customer-list { display: flex; flex-direction: column; gap: 8px; }
 .customer-row {
-  width: 100%; border-bottom: 1px solid var(--border);
-  font-family: inherit;
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; padding: 14px 15px; border: none;
+  background: var(--card); border-radius: var(--radius-md);
+  box-shadow: 0 1px 4px rgba(27,58,107,0.08);
+  cursor: pointer; text-align: left; font-family: inherit;
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
-.customer-row:last-child { border-bottom: none; }
-.customer-row-main {
-  display: block; width: 100%; padding: 13px 14px; cursor: pointer;
-  text-align: left;
-}
+.customer-row:active { box-shadow: 0 1px 2px rgba(27,58,107,0.08); transform: scale(0.99); }
 .customer-row-name { font-size: 13px; font-weight: 700; color: var(--text); }
 .customer-row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .customer-row-metrics { text-align: right; }
 .customer-row-profit { font-size: 13px; font-weight: 800; color: var(--green); }
 .customer-row-profit.negative { color: var(--red); }
-.customer-row-contacts {
+
+/* ── Customers tab list rows — deliberately separate classes from
+   .customer-row above so the two lists' layouts never collide. Same
+   card-per-row treatment. ── */
+.customer-list-row {
+  width: 100%; font-family: inherit;
+  background: var(--card); border-radius: var(--radius-md);
+  box-shadow: 0 1px 4px rgba(27,58,107,0.08);
+}
+.customer-list-row-main {
+  display: block; width: 100%; padding: 14px 15px; cursor: pointer;
+  text-align: left; border-radius: var(--radius-md);
+  transition: background 0.1s ease;
+}
+.customer-list-row-main:active { background: var(--bg); }
+.customer-list-row-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.customer-list-row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.customer-list-row-contacts {
   display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px;
 }
 .contact-link {
@@ -381,6 +401,26 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
   text-decoration: none;
 }
 .contact-link.muted { color: var(--muted); font-weight: 500; }
+
+/* ── Search box (Customer list + Customer Profitability) — same visual
+   treatment as the Settings form's field-input, so it reads as a proper
+   input field rather than a bare browser default box. ── */
+.search-input {
+  width: 100%; box-sizing: border-box; margin-bottom: 10px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: inherit;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(27,58,107,0.1);
+}
+.search-input::placeholder { color: var(--muted); }
 
 /* ── Aging summary ── */
 .aging-card { padding: 4px 14px; }
@@ -524,3 +564,9 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
   margin-top: 14px;
 }
 .about-row span:last-child { color: var(--text); font-weight: 600; }
+.about-copyright {
+  width: 100%; text-align: center;
+  font-size: 10.5px; color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 10px; margin-top: 10px;
+}
