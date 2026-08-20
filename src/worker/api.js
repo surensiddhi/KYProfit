@@ -12,6 +12,7 @@ import {
 } from './sheets.js';
 import { validateCustomer, validateInvoice, validatePayment, validateSettings } from './validation.js';
 import { portfolioRollup, customerRollup } from './calc.js';
+import { sendReminderEmail, buildWhatsAppLink } from './reminders.js';
 
 async function requireSession(request, env) {
   const session = await verifySession(request, env);
@@ -73,6 +74,31 @@ export async function handleApiRoutes(request, env, url) {
       const customerInvoices = invoices.filter((i) => i.customer_id === customerId);
       const customerPayments = payments.filter((p) => p.customer_id === customerId);
       return jsonResponse({ customer, rollup, invoices: customerInvoices, payments: customerPayments });
+    })();
+  }
+
+  // ── Reminders ──────────────────────────────────────────────────────────
+
+  const remindMatch = pathname.match(/^\/api\/customers\/([^/]+)\/remind$/);
+  if (remindMatch && method === 'POST') {
+    return withErrorHandling(async () => {
+      const session = await requireSession(request, env);
+      if (!session) return jsonResponse({ error: 'Not authenticated' }, 401);
+      const customerId = remindMatch[1];
+      const customer = await getCustomerById(env, customerId);
+      if (!customer) return jsonResponse({ error: 'Customer not found' }, 404);
+
+      const [invoices, payments, settings] = await Promise.all([
+        listInvoices(env), listPayments(env), getSettings(env),
+      ]);
+      const rollup = customerRollup(customer, invoices, payments, settings);
+
+      const [emailResult, whatsappLink] = await Promise.all([
+        sendReminderEmail(env, { customer, rollup, settings }),
+        Promise.resolve(buildWhatsAppLink({ customer, rollup, settings })),
+      ]);
+
+      return jsonResponse({ email: emailResult, whatsapp_link: whatsappLink });
     })();
   }
 

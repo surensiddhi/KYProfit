@@ -78,6 +78,7 @@ export function mountApp(root, { email, onLogout }) {
         <button class="action-sheet-item cancel" id="about-sheet-close">Close</button>
       </div>
     </div>
+    <div class="toast" id="toast"></div>
   `;
 
   const scrollArea = root.querySelector('#scroll-area');
@@ -164,6 +165,16 @@ export function mountApp(root, { email, onLogout }) {
     if (view.name === 'customers' || view.name === 'customerDetail') root.querySelector('#nav-customers').classList.add('active');
   }
 
+  let toastTimer = null;
+  function showToast(message) {
+    const toast = root.querySelector('#toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
   function showLoading() {
     scrollArea.innerHTML = `<div class="empty-state"><div class="emoji">⏳</div><div class="title">Loading…</div></div>`;
   }
@@ -219,6 +230,22 @@ export function mountApp(root, { email, onLogout }) {
           wireCustomerDetail(scrollArea, {
             onAddInvoice: () => navigate('addInvoice', { customerId: view.params.customerId, fromCustomerId: view.params.customerId }),
             onRecordPayment: () => navigate('recordPayment', { customerId: view.params.customerId, fromCustomerId: view.params.customerId }),
+            onRemind: async () => {
+              try {
+                const result = await api.remindCustomer(view.params.customerId);
+                const emailMsg = result.email?.sent
+                  ? 'Reminder email sent.'
+                  : `Email not sent: ${result.email?.reason || 'unknown reason'}`;
+                if (result.whatsapp_link) {
+                  showToast(`${emailMsg} Opening WhatsApp…`);
+                  window.open(result.whatsapp_link, '_blank');
+                } else {
+                  showToast(`${emailMsg} No phone number on file for WhatsApp.`);
+                }
+              } catch (err) {
+                showToast(err?.message || 'Could not send reminder.');
+              }
+            },
           });
           break;
         }

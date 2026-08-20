@@ -12,6 +12,7 @@
   ],
   "vars": {
     "GOOGLE_SHEET_ID": "1FKGjtxQD_RpL_FUsLYSNQXKgtqizMRZy7WkCVYf0QVs",
-    "GOOGLE_CLIENT_EMAIL": "kyprofit-sheets@kyprofit.iam.gserviceaccount.com"
+    "GOOGLE_CLIENT_EMAIL": "kyprofit-sheets@kyprofit.iam.gserviceaccount.com",
+    "REMINDER_FROM_EMAIL": "KYProfit <onboarding@resend.dev>"
   }
 }

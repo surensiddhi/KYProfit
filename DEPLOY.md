@@ -324,3 +324,87 @@ This is the real end-to-end test, no console scripts needed:
 If anything renders blank, shows a raw error, or a button doesn't respond, tell me exactly what you tapped and what happened (or send a screenshot) — that's usually enough for me to spot it immediately.
 
 Once this loop works end-to-end, we'll move to **M6 — Aging + DSO engine**, which is specifically about stress-testing the formulas you just watched work against a handful of real invoices, to make sure the numbers are trustworthy before you rely on them day to day.
+
+---
+
+## M6: Aging + DSO engine — verifying the math
+
+### 1. Add the test script
+
+New file: `scripts/test-calc.mjs` — a standalone regression test for the DSO, aging, carrying cost, and profit formulas in `src/worker/calc.js`. No Sheets connection or deployment needed to run it — it's pure math, checked against hand-calculated expected values.
+
+Run it locally any time with:
+
+```bash
+node scripts/test-calc.mjs
+```
+
+It covers: aging bucket boundaries (exactly 30/31/45/46/90/91 days), a fully paid invoice, a partially paid invoice, a completely unpaid invoice, an advance/unapplied payment, a customer with multiple invoices (revenue-weighted DSO roll-up), and a zero-revenue edge case. All 27 checks pass as of this milestone.
+
+Nothing to deploy for this step — it doesn't touch the live app, just gives you (and me, later) a fast way to catch a broken formula before it ships.
+
+### 2. The step only you can do — hand-check real invoices
+
+Pick 2-3 real invoices already in your app with different situations (one fully paid, one partial, one unpaid if you have one) and compare what the Customer Detail screen shows against what you'd calculate by hand:
+
+- **Outstanding balance** = revenue minus whatever's been paid toward it
+- **Aging bucket** = how many days old the invoice is (today minus invoice date), only for invoices with a balance still owed
+- **Net profit** = revenue minus COGS minus cost to serve minus a small "carrying cost" (the cost of your money being tied up while unpaid — roughly revenue × days-outstanding/365 × your Cost of Capital %)
+
+If any of these look off for your real data, tell me the invoice details and what you expected vs. what you saw — that's exactly the kind of check this milestone exists for.
+
+Once you're comfortable the numbers are right, we'll move to **M7 — Reminders** (email + WhatsApp) or **M8 — Offline + auto-update**, whichever you'd rather do next.
+
+---
+
+## M7: Reminders (email + WhatsApp)
+
+### 1. Update your local project
+
+New file:
+- `src/worker/reminders.js` (new — sends the reminder email via Resend, builds the WhatsApp click-to-chat link)
+
+Overwrite these existing files:
+- `src/worker/api.js` (adds `POST /api/customers/:id/remind`)
+- `src/lib/api.js` (adds the `remindCustomer` call)
+- `src/views/customerDetail.js` (the "Send Reminder" button is now live instead of disabled)
+- `src/app.js` (wires the button to the new route, shows a toast, opens WhatsApp)
+
+**One manual edit** — open your own `wrangler.json` and add this line inside the existing `"vars"` block (don't overwrite the whole file, just add this one line alongside `GOOGLE_SHEET_ID` and `GOOGLE_CLIENT_EMAIL`):
+
+```json
+"REMINDER_FROM_EMAIL": "KYProfit <onboarding@resend.dev>"
+```
+
+### 2. Sign up for Resend (the email sender)
+
+1. Go to resend.com → sign up (free tier is generous — 3,000 emails/month)
+2. Once in the dashboard, go to **API Keys** → Create API Key → copy it
+3. You do **not** need to verify your own domain to get started — Resend's shared `onboarding@resend.dev` address works out of the box for testing (that's what `REMINDER_FROM_EMAIL` above uses). When you're ready to send from your own domain later (e.g. `reminders@yourbusiness.com`), verify that domain in Resend's dashboard and update `REMINDER_FROM_EMAIL` to match — no code changes needed.
+
+### 3. Store the API key as a secret
+
+```bash
+npx wrangler secret put RESEND_API_KEY
+```
+
+Paste the key from step 2 when prompted.
+
+### 4. Commit and push
+
+```bash
+git add .
+git commit -m "M7: reminders — email via Resend, WhatsApp click-to-chat"
+git push
+```
+
+### 5. Verify
+
+1. Make sure a test customer in your Sheet has a real `contact_email` you can check, and a `contact_phone` with country code (e.g. `9779800000000` — the WhatsApp link needs the country code with no `+` or spaces to work reliably)
+2. Open that customer's Customer Detail screen in the app, tap **📨 Send Reminder**
+3. You should see a toast confirming the email sent (or explaining why not, e.g. missing contact info or a Resend config issue), and a WhatsApp tab should open with the message pre-filled — you still tap Send yourself, this doesn't auto-send WhatsApp messages
+4. Check the inbox for that `contact_email` — confirm the email arrived with the right outstanding balance and aging breakdown
+
+If a customer has no `contact_email` or no `contact_phone`, that part is simply skipped with a clear reason in the toast — it won't block the other channel.
+
+Once this works, the only things still deferred to Phase 2 are Viber and the official (auto-send) WhatsApp Business API — both noted in the original backlog as out of scope for now.

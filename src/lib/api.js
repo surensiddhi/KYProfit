@@ -44,4 +44,5 @@ export const api = {
   updatePayment: (id, data) => apiFetch(`/api/payments/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
   getSettings: () => apiFetch('/api/settings'),
   updateSettings: (data) => apiFetch('/api/settings', { method: 'PATCH', body: JSON.stringify(data) }),
+  remindCustomer: (id) => apiFetch(`/api/customers/${encodeURIComponent(id)}/remind`, { method: 'POST' }),
 };
