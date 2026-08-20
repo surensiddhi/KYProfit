@@ -8,6 +8,12 @@ export function renderSettingsForm(settings) {
       <div class="form-success" id="form-success" style="display:none;">Settings saved.</div>
 
       <div class="field-group">
+        <label class="field-label" for="f-company-name">Company Name *</label>
+        <input class="field-input" id="f-company-name" name="company_name" required value="${escapeHtml(settings.company_name ?? '')}" placeholder="e.g. Mercantile">
+        <div class="field-hint">Shown in reminder emails — the business your customers know you as.</div>
+      </div>
+
+      <div class="field-group">
         <label class="field-label" for="f-cost-of-capital">Cost of Capital (%)</label>
         <input class="field-input" id="f-cost-of-capital" name="cost_of_capital_pct" type="number" step="0.1" min="0" value="${escapeHtml(settings.cost_of_capital_pct ?? 10)}">
         <div class="field-hint">Used to calculate the carrying cost of unpaid revenue.</div>

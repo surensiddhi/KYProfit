@@ -38,7 +38,11 @@ async function checkSession() {
   }
 }
 
+let teardownApp = null;
+
 function showLogin() {
+  teardownApp?.(); // stop the previous mount's popstate listener before wiping its DOM
+  teardownApp = null;
   viewRoot.innerHTML = renderLogin();
   wireLogin({
     onSuccess: (session) => showApp(session),
@@ -46,7 +50,7 @@ function showLogin() {
 }
 
 function showApp(session) {
-  mountApp(viewRoot, {
+  teardownApp = mountApp(viewRoot, {
     email: session?.email,
     onLogout: () => showLogin(),
   });

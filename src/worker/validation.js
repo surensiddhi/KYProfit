@@ -46,6 +46,9 @@ export function validatePayment(body) {
 
 export function validateSettings(body) {
   const errors = [];
+  if (body.company_name !== undefined && !String(body.company_name).trim()) {
+    errors.push('company_name cannot be blank');
+  }
   if (body.cost_of_capital_pct !== undefined && isNaN(parseFloat(body.cost_of_capital_pct))) {
     errors.push('cost_of_capital_pct must be a number');
   }

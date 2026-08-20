@@ -21,12 +21,17 @@ export function renderCustomersList(customers) {
     ` : `
       <div class="card customer-list">
         ${customers.map((c) => `
-          <button class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}">
-            <div class="customer-row-main">
+          <div class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}">
+            <div class="customer-row-main" data-customer-open="${escapeHtml(c.customer_id)}">
               <div class="customer-row-name">${escapeHtml(c.name)}</div>
               <div class="customer-row-sub">${escapeHtml(c.customer_type || '')}${c.customer_type && c.account_owner ? ' · ' : ''}${escapeHtml(c.account_owner || '')}</div>
+              <div class="customer-row-contacts">
+                ${c.contact_phone ? `<a class="contact-link" href="tel:${escapeHtml(c.contact_phone)}">📞 ${escapeHtml(c.contact_phone)}</a>` : ''}
+                ${c.contact_email ? `<a class="contact-link" href="mailto:${escapeHtml(c.contact_email)}">✉️ ${escapeHtml(c.contact_email)}</a>` : ''}
+                ${!c.contact_phone && !c.contact_email ? `<span class="contact-link muted">No contact info on file</span>` : ''}
+              </div>
             </div>
-          </button>
+          </div>
         `).join('')}
       </div>
     `}
@@ -34,8 +39,12 @@ export function renderCustomersList(customers) {
 }
 
 export function wireCustomersList(container, { onSelectCustomer, onAddCustomer }) {
-  container.querySelectorAll('[data-customer-id]').forEach((el) => {
-    el.addEventListener('click', () => onSelectCustomer(el.dataset.customerId));
+  container.querySelectorAll('[data-customer-open]').forEach((el) => {
+    el.addEventListener('click', () => onSelectCustomer(el.dataset.customerOpen));
+  });
+  // tel:/mailto: links inside the row should just do their own thing, not also open Customer Detail.
+  container.querySelectorAll('.contact-link').forEach((el) => {
+    el.addEventListener('click', (e) => e.stopPropagation());
   });
   container.querySelector('#add-customer-link')?.addEventListener('click', onAddCustomer);
 }

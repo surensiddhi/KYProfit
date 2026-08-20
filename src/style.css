@@ -360,17 +360,27 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
 /* ── Customer list rows ── */
 .customer-list { display: flex; flex-direction: column; }
 .customer-row {
-  display: flex; justify-content: space-between; align-items: center;
-  width: 100%; padding: 13px 14px; border: none; background: none;
-  border-bottom: 1px solid var(--border); cursor: pointer; text-align: left;
+  width: 100%; border-bottom: 1px solid var(--border);
   font-family: inherit;
 }
 .customer-row:last-child { border-bottom: none; }
+.customer-row-main {
+  display: block; width: 100%; padding: 13px 14px; cursor: pointer;
+  text-align: left;
+}
 .customer-row-name { font-size: 13px; font-weight: 700; color: var(--text); }
 .customer-row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .customer-row-metrics { text-align: right; }
 .customer-row-profit { font-size: 13px; font-weight: 800; color: var(--green); }
 .customer-row-profit.negative { color: var(--red); }
+.customer-row-contacts {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px;
+}
+.contact-link {
+  font-size: 11.5px; font-weight: 600; color: var(--navy);
+  text-decoration: none;
+}
+.contact-link.muted { color: var(--muted); font-weight: 500; }
 
 /* ── Aging summary ── */
 .aging-card { padding: 4px 14px; }

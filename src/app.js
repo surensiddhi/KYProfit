@@ -26,19 +26,46 @@ const VIEW_TITLES = {
 
 const TOP_LEVEL_VIEWS = new Set(['dashboard', 'customers']);
 
-// Bump this string whenever a milestone ships — shown in the About sheet so
-// you can confirm which build is actually live on a given device.
-const APP_VERSION = 'v0.5 · M5 complete';
+// Bump this string with every shipped change (not just milestones) — shown
+// in the About sheet so you can confirm which build is actually live on a
+// given device, which has repeatedly been the fastest way to catch a stale
+// deploy during troubleshooting.
+const APP_VERSION = 'v0.9';
+const DEVELOPER_NAME = 'Surendra Siddhi Bajracharya';
+const DEVELOPER_COMPANY = 'Nepal Data Systems Pvt. Ltd.';
 
 export function mountApp(root, { email, onLogout }) {
   let view = { name: 'dashboard', params: {} };
   let settingsCache = { currency: 'NPR', cost_of_capital_pct: 10, monthly_marketing_spend: 0 };
   let customersCache = [];
 
-  function navigate(name, params = {}) {
+  // Wire the phone's back button/gesture to step back through in-app screens
+  // instead of exiting the PWA. The app has no real URLs, so we push a
+  // history entry on every navigate() and rely on popstate to tell us when
+  // the system back button was pressed — without this, Android's back
+  // button has no history to step through and just closes the app.
+  function navigate(name, params = {}, { replace = false } = {}) {
     view = { name, params };
+    const state = { kyprofitView: view };
+    if (replace) {
+      window.history.replaceState(state, '', location.href);
+    } else {
+      window.history.pushState(state, '', location.href);
+    }
     render();
   }
+
+  function handlePopState(event) {
+    if (event.state && event.state.kyprofitView) {
+      view = event.state.kyprofitView;
+      render(); // render only — this state is already in history, don't push again
+    }
+    // No app state on this entry means we've walked back past everything
+    // the app pushed — let the browser's default back behavior take over
+    // (exits the PWA), which is correct once you're already at the root.
+  }
+  window.addEventListener('popstate', handlePopState);
+  window.history.replaceState({ kyprofitView: view }, '', location.href); // baseline entry, no extra push
 
   root.innerHTML = `
     <div class="top-bar">
@@ -75,6 +102,8 @@ export function mountApp(root, { email, onLogout }) {
         <div class="about-tagline">Know Your Profit</div>
         <div class="about-version">${APP_VERSION}</div>
         <div class="about-row"><span>Signed in as</span><span>${escapeHtml(email || '—')}</span></div>
+        <div class="about-row"><span>Developed by</span><span>${escapeHtml(DEVELOPER_NAME)}</span></div>
+        <div class="about-row"><span>Company</span><span>${escapeHtml(DEVELOPER_COMPANY)}</span></div>
         <button class="action-sheet-item cancel" id="about-sheet-close">Close</button>
       </div>
     </div>
@@ -309,4 +338,11 @@ export function mountApp(root, { email, onLogout }) {
   }
 
   render();
+
+  // Call this before mounting the app again (e.g. re-login after logout) so
+  // the previous mount's popstate listener doesn't leak and fire against
+  // stale, already-replaced DOM.
+  return function teardown() {
+    window.removeEventListener('popstate', handlePopState);
+  };
 }

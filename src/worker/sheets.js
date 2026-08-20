@@ -30,7 +30,7 @@ const TABS = {
   },
   settings: {
     name: 'Settings',
-    columns: ['cost_of_capital_pct', 'currency', 'monthly_marketing_spend'],
+    columns: ['company_name', 'cost_of_capital_pct', 'currency', 'monthly_marketing_spend'],
   },
   users: {
     // Roster of who's allowed to log in + their role. Passwords are never
@@ -213,6 +213,7 @@ export async function getSettings(env) {
   const rows = await getValues(env, `${TABS.settings.name}!A:Z`);
   const [settings] = rowsToObjects(rows, TABS.settings.columns);
   return settings || {
+    company_name: '',
     cost_of_capital_pct: 10,
     currency: 'NPR',
     monthly_marketing_spend: 0,
