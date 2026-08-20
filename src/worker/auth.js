@@ -6,6 +6,7 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { jsonResponse } from '../worker.js';
+import { getUserByEmail } from './sheets.js';
 
 const SESSION_COOKIE = 'kyprofit_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
@@ -25,6 +26,9 @@ export async function handleLogin(request, env) {
     return jsonResponse({ error: 'Email and password are required' }, 400);
   }
 
+  // Password hashes always live in KV, never in the Sheet — the KV key is
+  // named "admin:" for historical reasons but stores credentials for any
+  // user, not just the original admin account.
   const storedHash = await env.AUTH_KV.get(`admin:${email}`);
   if (!storedHash) {
     // Same error as a wrong password — don't reveal whether the email exists.
@@ -36,8 +40,26 @@ export async function handleLogin(request, env) {
     return jsonResponse({ error: 'Invalid email or password' }, 401);
   }
 
+  // Role + active status come from the Sheet's Users tab, once it's wired up
+  // (GOOGLE_SHEET_ID configured). Until then every KV-registered login is
+  // treated as admin, so M2 keeps working standalone before M3 lands.
+  let role = 'admin';
+  let name = '';
+  if (env.GOOGLE_SHEET_ID) {
+    const user = await getUserByEmail(env, email).catch(() => null);
+    if (!user) {
+      return jsonResponse({ error: 'Invalid email or password' }, 401);
+    }
+    const isActive = String(user.active || '').trim().toLowerCase();
+    if (isActive === 'false' || isActive === 'no' || isActive === '0') {
+      return jsonResponse({ error: 'This account has been deactivated' }, 403);
+    }
+    role = (user.role || 'user').trim().toLowerCase();
+    name = user.name || '';
+  }
+
   const secret = new TextEncoder().encode(env.JWT_SECRET);
-  const token = await new SignJWT({ email })
+  const token = await new SignJWT({ email, role, name })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_TTL_SECONDS}s`)
@@ -52,7 +74,7 @@ export async function handleLogin(request, env) {
     `Max-Age=${SESSION_TTL_SECONDS}`,
   ].join('; ');
 
-  return jsonResponse({ ok: true, email }, 200, { 'Set-Cookie': cookie });
+  return jsonResponse({ ok: true, email, role, name }, 200, { 'Set-Cookie': cookie });
 }
 
 export function handleLogout() {
@@ -73,7 +95,7 @@ export function handleLogout() {
 export async function handleMe(request, env) {
   const session = await verifySession(request, env);
   if (!session) return jsonResponse({ error: 'Not authenticated' }, 401);
-  return jsonResponse({ email: session.email });
+  return jsonResponse({ email: session.email, role: session.role, name: session.name });
 }
 
 // Used by protected /api/* routes from M4 onward.
