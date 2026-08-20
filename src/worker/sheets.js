@@ -17,14 +17,14 @@ const TABS = {
   invoices: {
     name: 'Invoices',
     columns: [
-      'invoice_id', 'customer_id', 'revenue', 'cogs', 'cost_to_serve',
+      'invoice_id', 'invoice_number', 'customer_id', 'revenue', 'cogs', 'cost_to_serve',
       'invoice_date', 'notes', 'created_at',
     ],
   },
   payments: {
     name: 'Payments',
     columns: [
-      'payment_id', 'invoice_id', 'customer_id', 'amount', 'payment_date',
+      'payment_id', 'receipt_number', 'invoice_id', 'customer_id', 'amount', 'payment_date',
       'notes', 'created_at',
     ],
   },
@@ -152,6 +152,7 @@ export async function listInvoices(env) {
 export async function createInvoice(env, data) {
   const invoice = {
     invoice_id: crypto.randomUUID(),
+    invoice_number: data.invoice_number || '', // your own reference number, e.g. from other billing software
     customer_id: data.customer_id || '',
     revenue: data.revenue ?? '',
     cogs: data.cogs ?? '',
@@ -184,6 +185,7 @@ export async function listPayments(env) {
 export async function createPayment(env, data) {
   const payment = {
     payment_id: crypto.randomUUID(),
+    receipt_number: data.receipt_number || '', // your own reference number
     invoice_id: data.invoice_id || '', // blank = unapplied advance/credit
     customer_id: data.customer_id || '',
     amount: data.amount ?? '',

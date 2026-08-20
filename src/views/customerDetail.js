@@ -64,7 +64,7 @@ export function renderCustomerDetail({ customer, rollup, invoices, payments }, c
           <div class="history-row">
             <div class="history-icon invoice-icon">📄</div>
             <div class="history-main">
-              <div class="history-title">Invoice — ${formatMoney(h.revenue, currency)}</div>
+              <div class="history-title">Invoice${h.invoice_number ? ` #${escapeHtml(h.invoice_number)}` : ''} — ${formatMoney(h.revenue, currency)}</div>
               <div class="history-sub">${formatDate(h.invoice_date)}${h.notes ? ` · ${escapeHtml(h.notes)}` : ''}</div>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function renderCustomerDetail({ customer, rollup, invoices, payments }, c
           <div class="history-row">
             <div class="history-icon payment-icon">💰</div>
             <div class="history-main">
-              <div class="history-title">Payment — ${formatMoney(h.amount, currency)}</div>
+              <div class="history-title">Payment${h.receipt_number ? ` #${escapeHtml(h.receipt_number)}` : ''} — ${formatMoney(h.amount, currency)}</div>
               <div class="history-sub">${formatDate(h.payment_date)}${h.invoice_id ? '' : ' · Unapplied / advance'}${h.notes ? ` · ${escapeHtml(h.notes)}` : ''}</div>
             </div>
           </div>

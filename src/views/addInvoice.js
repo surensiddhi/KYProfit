@@ -16,6 +16,11 @@ export function renderAddInvoiceForm(customers, { presetCustomerId, currency } =
         </select>
       </div>
 
+      <div class="field-group">
+        <label class="field-label" for="f-invoice-number">Invoice Number</label>
+        <input class="field-input" id="f-invoice-number" name="invoice_number" placeholder="Optional — from your billing software">
+      </div>
+
       <div class="field-row">
         <div class="field-group">
           <label class="field-label" for="f-revenue">Revenue *</label>

@@ -76,6 +76,7 @@ export function invoiceMetrics(invoice, payments, settings, today = new Date()) 
 
   return {
     invoice_id: invoice.invoice_id,
+    invoice_number: invoice.invoice_number || '',
     customer_id: invoice.customer_id,
     revenue,
     outstanding_balance: balance,

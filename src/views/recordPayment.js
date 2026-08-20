@@ -24,6 +24,11 @@ export function renderRecordPaymentForm(customers, { presetCustomerId, currency 
         <div class="field-hint">Leave as "Unapplied / advance" if this is a credit not yet tied to an invoice.</div>
       </div>
 
+      <div class="field-group">
+        <label class="field-label" for="f-receipt-number">Receipt Number</label>
+        <input class="field-input" id="f-receipt-number" name="receipt_number" placeholder="Optional — your own reference">
+      </div>
+
       <div class="field-row">
         <div class="field-group">
           <label class="field-label" for="f-amount">Amount *</label>
@@ -75,7 +80,7 @@ export function wireRecordPaymentForm(container, { onSuccess, currency }) {
       openInvoices = (rollup.invoice_metrics || []).filter((m) => m.outstanding_balance > 0);
       invoiceSelect.innerHTML = [
         '<option value="">Unapplied / advance</option>',
-        ...openInvoices.map((m) => `<option value="${escapeHtml(m.invoice_id)}" data-balance="${m.outstanding_balance}">${escapeHtml(m.invoice_id.slice(0, 8))} — outstanding ${formatMoney(m.outstanding_balance, currency)}</option>`),
+        ...openInvoices.map((m) => `<option value="${escapeHtml(m.invoice_id)}" data-balance="${m.outstanding_balance}">${escapeHtml(m.invoice_number || m.invoice_id.slice(0, 8))} — outstanding ${formatMoney(m.outstanding_balance, currency)}</option>`),
       ].join('');
       invoiceSelect.disabled = false;
     } catch {
