@@ -74,24 +74,31 @@ body {
 }
 
 /* ── KPI cards ── */
+/* 2x2 grid instead of a horizontal scroll row — a scrolling row hides cards
+   off-screen and squeezes large rupee amounts; a grid keeps all four
+   visible and gives each card room to grow for big numbers. */
 .kpi-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
 }
 .kpi-card {
   background: var(--card);
   border-radius: var(--radius-md);
   padding: 12px 14px;
-  min-width: 110px;
-  flex-shrink: 0;
+  min-width: 0; /* let grid cells shrink instead of overflowing on long numbers */
   box-shadow: 0 2px 10px rgba(27,58,107,0.08);
 }
 .kpi-card.accent { background: var(--navy); }
 .kpi-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .kpi-card.accent .kpi-label { color: rgba(255,255,255,0.6); }
-.kpi-value { font-size: 18px; font-weight: 800; margin-top: 4px; letter-spacing: -0.4px; }
+.kpi-value {
+  font-size: 17px;
+  font-weight: 800;
+  margin-top: 4px;
+  letter-spacing: -0.4px;
+  word-break: break-word; /* wrap onto a second line instead of clipping on very large amounts */
+}
 .kpi-card.accent .kpi-value { color: white; }
 
 /* ── Cards / lists ── */
@@ -288,8 +295,27 @@ input.field-input:focus {
 .field-row { display: flex; gap: 10px; }
 .field-row .field-group { flex: 1; }
 .field-hint { font-size: 11px; color: var(--muted); margin-top: -6px; }
-textarea.field-input { resize: vertical; font-family: inherit; }
-select.field-input { appearance: none; background-color: white; }
+
+textarea.field-input {
+  resize: vertical;
+  font-family: inherit;
+  min-height: 84px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+select.field-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: white;
+  padding-right: 36px;
+  font-size: 15px;
+  min-height: 46px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%236B7A99' stroke-width='2' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+select.field-input:disabled { background-color: var(--bg); color: var(--muted); }
 
 .form-error {
   background: rgba(239,68,68,0.08);
@@ -440,3 +466,18 @@ select.field-input { appearance: none; background-color: white; }
 }
 .action-sheet-item:last-of-type { border-bottom: none; }
 .action-sheet-item.cancel { color: var(--muted); text-align: center; font-weight: 700; margin-top: 4px; }
+
+/* ── About sheet ── */
+.about-card { align-items: center; text-align: center; padding-top: 22px; }
+.about-name { font-size: 17px; font-weight: 800; color: var(--text); margin-top: 4px; }
+.about-tagline { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.about-version { font-size: 11px; color: var(--muted); margin-top: 8px; background: var(--bg); border-radius: 20px; padding: 4px 12px; display: inline-block; }
+.about-row {
+  width: 100%;
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding: 14px 4px 0;
+  margin-top: 14px;
+}
+.about-row span:last-child { color: var(--text); font-weight: 600; }

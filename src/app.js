@@ -26,6 +26,10 @@ const VIEW_TITLES = {
 
 const TOP_LEVEL_VIEWS = new Set(['dashboard', 'customers']);
 
+// Bump this string whenever a milestone ships — shown in the About sheet so
+// you can confirm which build is actually live on a given device.
+const APP_VERSION = 'v0.5 · M5 complete';
+
 export function mountApp(root, { email, onLogout }) {
   let view = { name: 'dashboard', params: {} };
   let settingsCache = { currency: 'NPR', cost_of_capital_pct: 10, monthly_marketing_spend: 0 };
@@ -63,6 +67,17 @@ export function mountApp(root, { email, onLogout }) {
         <button class="action-sheet-item cancel" id="action-sheet-cancel">Cancel</button>
       </div>
     </div>
+    <div class="action-sheet" id="about-sheet">
+      <div class="action-sheet-backdrop" id="about-sheet-backdrop"></div>
+      <div class="action-sheet-card about-card">
+        <div class="app-logo" style="width:44px;height:44px;font-size:17px;margin:0 auto 8px;">KY</div>
+        <div class="about-name">KYProfit</div>
+        <div class="about-tagline">Know Your Profit</div>
+        <div class="about-version">${APP_VERSION}</div>
+        <div class="about-row"><span>Signed in as</span><span>${escapeHtml(email || '—')}</span></div>
+        <button class="action-sheet-item cancel" id="about-sheet-close">Close</button>
+      </div>
+    </div>
   `;
 
   const scrollArea = root.querySelector('#scroll-area');
@@ -70,6 +85,15 @@ export function mountApp(root, { email, onLogout }) {
 
   wireBottomNav();
   wireActionSheet();
+  wireAboutSheet();
+
+  function wireAboutSheet() {
+    const open = () => root.querySelector('#about-sheet').classList.add('show');
+    const close = () => root.querySelector('#about-sheet').classList.remove('show');
+    root.querySelector('#about-sheet-backdrop').addEventListener('click', close);
+    root.querySelector('#about-sheet-close').addEventListener('click', close);
+    root._openAboutSheet = open; // exposed for the top-bar button, wired per-render below
+  }
 
   function wireBottomNav() {
     root.querySelector('#nav-dashboard').addEventListener('click', () => navigate('dashboard'));
@@ -102,6 +126,7 @@ export function mountApp(root, { email, onLogout }) {
           <div class="page-name">${VIEW_TITLES[view.name]}</div>
         </div>
         <div class="top-bar-actions">
+          <button class="icon-btn" id="about-btn" title="About KYProfit">ⓘ</button>
           <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
           <button class="avatar" id="avatar-btn" title="${email ? `Signed in as ${email} — tap to sign out` : 'Sign out'}">${(email || 'S').trim().charAt(0).toUpperCase()}</button>
         </div>
@@ -112,10 +137,14 @@ export function mountApp(root, { email, onLogout }) {
           <button class="icon-btn" id="back-btn" title="Back">←</button>
           <div class="page-name">${VIEW_TITLES[view.name] || ''}</div>
         </div>
-        <button class="avatar" id="avatar-btn" title="${email ? `Signed in as ${email} — tap to sign out` : 'Sign out'}">${(email || 'S').trim().charAt(0).toUpperCase()}</button>
+        <div class="top-bar-actions">
+          <button class="icon-btn" id="about-btn" title="About KYProfit">ⓘ</button>
+          <button class="avatar" id="avatar-btn" title="${email ? `Signed in as ${email} — tap to sign out` : 'Sign out'}">${(email || 'S').trim().charAt(0).toUpperCase()}</button>
+        </div>
       `;
     }
 
+    topBarRow.querySelector('#about-btn')?.addEventListener('click', () => root._openAboutSheet?.());
     topBarRow.querySelector('#settings-btn')?.addEventListener('click', () => navigate('settings'));
     topBarRow.querySelector('#back-btn')?.addEventListener('click', () => {
       // Sub-views always return to a sensible parent rather than browser history,
