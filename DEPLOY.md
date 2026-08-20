@@ -196,7 +196,74 @@ account not shared on the Sheet, or a malformed private key).
 
 ---
 
-Once the Sheets connection verifies, come back and we'll start **M4 — API
-layer** (the full validated endpoint set: invoices, payments, dashboard
-rollups) followed by **M5 — Frontend views** (the actual Add Customer, Add
-Invoice, Record Payment, Customer Detail, and Settings screens).
+## M4: API layer
+
+### 1. Update your local project
+
+New/changed files:
+
+- `src/worker/calc.js` (new — DSO, aging, carrying cost, profit calculations)
+- `src/worker/validation.js` (new — input validation for POST/PATCH bodies)
+- `src/worker/api.js` (new — the full route set below)
+- `src/worker.js` (updated — wires in the M4 routes, replaces the M3 smoke-test routes)
+
+No new secrets or Sheet changes needed — this milestone is pure application logic on top of the M3 adapter.
+
+### 2. Commit and push
+
+```bash
+git add .
+git commit -m "M4: full API layer — invoices, payments, dashboard, validation"
+git push
+```
+
+### 3. Endpoints now live
+
+All require being logged in (session cookie).
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/api/customers` | List all customers |
+| POST | `/api/customers` | Create a customer (validates `name`) |
+| GET | `/api/customers/:id` | Customer detail + rollup metrics + invoice/payment history |
+| POST | `/api/invoices` | Create an invoice (validates customer_id, revenue, invoice_date) |
+| PATCH | `/api/invoices/:id` | Edit an invoice |
+| POST | `/api/payments` | Record a payment — `invoice_id` optional (blank = advance/credit) |
+| PATCH | `/api/payments/:id` | Edit a payment |
+| GET | `/api/settings` | Fetch cost of capital %, currency, marketing spend |
+| PATCH | `/api/settings` | Update settings |
+| GET | `/api/dashboard` | Portfolio KPIs (revenue, gross/net profit, margin %, avg DSO) + aging summary + per-customer rollup |
+
+### 4. Verify
+
+With the browser console (F12 → Console) while logged in, try the full loop:
+
+```js
+// 1. Add a customer
+const { customer } = await (await fetch('/api/customers', {
+  method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ name: 'Verify Co', account_owner: 'You' })
+})).json();
+console.log(customer);
+
+// 2. Add an invoice for that customer
+const { invoice } = await (await fetch('/api/invoices', {
+  method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ customer_id: customer.customer_id, revenue: 10000, cogs: 4000, cost_to_serve: 500, invoice_date: '2026-08-01' })
+})).json();
+console.log(invoice);
+
+// 3. Record a partial payment
+const { payment } = await (await fetch('/api/payments', {
+  method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ customer_id: customer.customer_id, invoice_id: invoice.invoice_id, amount: 4000, payment_date: '2026-08-10' })
+})).json();
+console.log(payment);
+
+// 4. Check the dashboard reflects it
+console.log(await (await fetch('/api/dashboard')).json());
+```
+
+Check that the dashboard response shows the new customer with the right outstanding balance (10000 − 4000 = 6000) and a non-null aging bucket. If anything looks off numerically, flag it — M6 is specifically for stress-testing these formulas against real invoices, but catching an obvious miscalculation now saves rework later.
+
+Once this checks out, remove the test customer/invoice/payment rows from your Sheet, and we'll move to **M5 — Frontend views** (the actual Add Customer, Add Invoice, Record Payment, Customer Detail, and Settings screens, replacing these console/curl tests with real UI).
