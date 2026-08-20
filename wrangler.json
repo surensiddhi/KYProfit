@@ -8,7 +8,7 @@
     "not_found_handling": "none"
   },
   "kv_namespaces": [
-    { "binding": "AUTH_KV", "id": "$2b$12$TV1AS9EDMCYpm31PhOsuLe.NuJOvHa6xjklaR.nYSfJJdVEGgKbIG" }
+     { "binding": "AUTH_KV", "id": "1b133c636f5d496aa40a8bb012808c37" }
   ],
   "vars": {
     "GOOGLE_SHEET_ID": "1FKGjtxQD_RpL_FUsLYSNQXKgtqizMRZy7WkCVYf0QVs",
