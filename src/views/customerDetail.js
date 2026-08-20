@@ -40,6 +40,14 @@ export function renderCustomerDetail({ customer, rollup, invoices, payments }, c
       </div>
     </div>
 
+    <div class="section-hdr"><div class="section-title">Profit Breakdown</div></div>
+    <div class="card aging-card">
+      <div class="aging-row"><span class="aging-bucket-label">Revenue</span><span class="aging-bucket-value">${formatMoney(rollup.revenue, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label">Gross Profit</span><span class="aging-bucket-value">${formatMoney(rollup.gross_profit, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label">Carrying Cost <span class="hint-icon" title="The cost of your money being tied up while this customer's invoices go unpaid — revenue × days outstanding ÷ 365 × your Cost of Capital %.">ⓘ</span></span><span class="aging-bucket-value negative">− ${formatMoney(rollup.carrying_cost, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label"><strong>Net Profit</strong></span><span class="aging-bucket-value">${formatMoney(rollup.net_profit, currency)}</span></div>
+    </div>
+
     <div class="section-hdr"><div class="section-title">Aging Breakdown</div></div>
     <div class="card aging-card">
       ${['0-30', '31-45', '46-90', '91+'].map((bucket) => `

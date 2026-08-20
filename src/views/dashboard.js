@@ -29,6 +29,17 @@ export function renderDashboard(dashboard, currency) {
     </div>
 
     <div class="section-hdr">
+      <div class="section-title">Profit Breakdown</div>
+    </div>
+    <div class="card aging-card">
+      <div class="aging-row"><span class="aging-bucket-label">Revenue</span><span class="aging-bucket-value">${formatMoney(d.revenue, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label">Gross Profit</span><span class="aging-bucket-value">${formatMoney(d.gross_profit, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label">Carrying Cost <span class="hint-icon" title="The cost of your money being tied up while invoices go unpaid across your whole portfolio.">ⓘ</span></span><span class="aging-bucket-value negative">− ${formatMoney(d.carrying_cost, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label">Marketing Spend</span><span class="aging-bucket-value negative">− ${formatMoney(d.marketing_spend, currency)}</span></div>
+      <div class="aging-row"><span class="aging-bucket-label"><strong>Net Profit</strong></span><span class="aging-bucket-value">${formatMoney(d.net_profit, currency)}</span></div>
+    </div>
+
+    <div class="section-hdr">
       <div class="section-title">Aging Summary</div>
     </div>
     <div class="card aging-card">

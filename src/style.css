@@ -384,6 +384,14 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
 .aging-bucket-value { font-weight: 800; color: var(--text); }
 .aging-row.aging-91 .aging-bucket-value { color: var(--red); }
 .aging-row.aging-46-90 .aging-bucket-value { color: var(--amber); }
+.aging-bucket-value.negative { color: var(--red); }
+.hint-icon {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: help;
+  margin-left: 2px;
+}
 
 /* ── Customer detail ── */
 .customer-detail-header { padding: 16px 14px; }
@@ -391,16 +399,39 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
 .customer-detail-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
 .remind-btn {
   margin-top: 10px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--green);
+  border: none;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 9px 14px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--muted);
-  cursor: not-allowed;
+  color: white;
+  cursor: pointer;
   font-family: inherit;
+  box-shadow: 0 3px 10px rgba(0,196,140,0.3);
 }
+.remind-btn:disabled { background: var(--bg); color: var(--muted); box-shadow: none; cursor: default; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: calc(100% - 28px);
+  max-width: 452px;
+  background: var(--navy-d);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .detail-actions { display: flex; gap: 10px; margin-top: 4px; }
 .secondary-btn {

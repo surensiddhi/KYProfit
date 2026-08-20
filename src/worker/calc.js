@@ -108,6 +108,7 @@ export function customerRollup(customer, invoices, payments, settings, today = n
 
   const revenue = metrics.reduce((s, m) => s + m.revenue, 0);
   const grossProfit = metrics.reduce((s, m) => s + m.gross_profit, 0);
+  const carryingCost = metrics.reduce((s, m) => s + m.carrying_cost, 0);
   const netProfit = metrics.reduce((s, m) => s + m.net_profit, 0);
   const outstanding = metrics.reduce((s, m) => s + m.outstanding_balance, 0);
   const netMarginPct = revenue > 0 ? (netProfit / revenue) * 100 : 0;
@@ -123,6 +124,7 @@ export function customerRollup(customer, invoices, payments, settings, today = n
     account_owner: customer.account_owner,
     revenue,
     gross_profit: grossProfit,
+    carrying_cost: carryingCost,
     net_profit: netProfit,
     net_margin_pct: netMarginPct,
     outstanding_balance: outstanding,
@@ -137,6 +139,7 @@ export function portfolioRollup(customers, invoices, payments, settings, today =
 
   const revenue = rollups.reduce((s, r) => s + r.revenue, 0);
   const grossProfit = rollups.reduce((s, r) => s + r.gross_profit, 0);
+  const carryingCost = rollups.reduce((s, r) => s + r.carrying_cost, 0);
   const netProfitBeforeMarketing = rollups.reduce((s, r) => s + r.net_profit, 0);
   const marketingSpend = toNumber(settings.monthly_marketing_spend);
   const netProfit = netProfitBeforeMarketing - marketingSpend;
@@ -155,6 +158,8 @@ export function portfolioRollup(customers, invoices, payments, settings, today =
   return {
     revenue,
     gross_profit: grossProfit,
+    carrying_cost: carryingCost,
+    marketing_spend: marketingSpend,
     net_profit: netProfit,
     net_margin_pct: netMarginPct,
     avg_dso: avgDso,
