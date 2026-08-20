@@ -19,13 +19,14 @@ export function renderCustomersList(customers) {
         </div>
       </div>
     ` : `
-      <div class="card customer-list">
+      <input class="search-input" id="customer-list-search" type="search" placeholder="Search customers…">
+      <div class="card customer-list" id="customer-list">
         ${customers.map((c) => `
-          <div class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}">
-            <div class="customer-row-main" data-customer-open="${escapeHtml(c.customer_id)}">
-              <div class="customer-row-name">${escapeHtml(c.name)}</div>
-              <div class="customer-row-sub">${escapeHtml(c.customer_type || '')}${c.customer_type && c.account_owner ? ' · ' : ''}${escapeHtml(c.account_owner || '')}</div>
-              <div class="customer-row-contacts">
+          <div class="customer-list-row" data-customer-id="${escapeHtml(c.customer_id)}" data-customer-name="${escapeHtml(c.name.toLowerCase())}">
+            <div class="customer-list-row-main" data-customer-open="${escapeHtml(c.customer_id)}">
+              <div class="customer-list-row-name">${escapeHtml(c.name)}</div>
+              <div class="customer-list-row-sub">${escapeHtml(c.customer_type || '')}${c.customer_type && c.account_owner ? ' · ' : ''}${escapeHtml(c.account_owner || '')}</div>
+              <div class="customer-list-row-contacts">
                 ${c.contact_phone ? `<a class="contact-link" href="tel:${escapeHtml(c.contact_phone)}">📞 ${escapeHtml(c.contact_phone)}</a>` : ''}
                 ${c.contact_email ? `<a class="contact-link" href="mailto:${escapeHtml(c.contact_email)}">✉️ ${escapeHtml(c.contact_email)}</a>` : ''}
                 ${!c.contact_phone && !c.contact_email ? `<span class="contact-link muted">No contact info on file</span>` : ''}
@@ -47,4 +48,12 @@ export function wireCustomersList(container, { onSelectCustomer, onAddCustomer }
     el.addEventListener('click', (e) => e.stopPropagation());
   });
   container.querySelector('#add-customer-link')?.addEventListener('click', onAddCustomer);
+
+  const searchInput = container.querySelector('#customer-list-search');
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    container.querySelectorAll('#customer-list [data-customer-name]').forEach((row) => {
+      row.style.display = row.dataset.customerName.includes(query) ? '' : 'none';
+    });
+  });
 }

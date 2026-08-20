@@ -64,9 +64,10 @@ export function renderDashboard(dashboard, currency) {
         </div>
       </div>
     ` : `
-      <div class="card customer-list">
+      <input class="search-input" id="customer-profitability-search" type="search" placeholder="Search customers…">
+      <div class="card customer-list" id="customer-profitability-list">
         ${customers.map((c) => `
-          <button class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}">
+          <button class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}" data-customer-name="${escapeHtml(c.name.toLowerCase())}">
             <div class="customer-row-main">
               <div class="customer-row-name">${escapeHtml(c.name)}</div>
               <div class="customer-row-sub">${escapeHtml(c.account_owner || 'No owner assigned')}</div>
@@ -85,5 +86,13 @@ export function renderDashboard(dashboard, currency) {
 export function wireDashboard(container, { onSelectCustomer }) {
   container.querySelectorAll('[data-customer-id]').forEach((el) => {
     el.addEventListener('click', () => onSelectCustomer(el.dataset.customerId));
+  });
+
+  const searchInput = container.querySelector('#customer-profitability-search');
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    container.querySelectorAll('#customer-profitability-list [data-customer-name]').forEach((row) => {
+      row.style.display = row.dataset.customerName.includes(query) ? '' : 'none';
+    });
   });
 }

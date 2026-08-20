@@ -27,23 +27,26 @@ export async function sendReminderEmail(env, { customer, rollup, settings }) {
   }
 
   const currency = settings.currency || 'NPR';
-  const companyName = settings.company_name || 'us';
+  const companyName = settings.company_name || 'Mercantile';
   const balance = formatMoneyPlain(rollup.outstanding_balance, currency);
   const fromAddress = env.REMINDER_FROM_EMAIL || 'KYProfit <onboarding@resend.dev>';
 
   const lines = agingLines(rollup.aging_summary || {}, currency);
   const agingRows = lines
-    .map(({ bucket, amount }) => `<tr><td style="padding:4px 12px 4px 0;color:#6B7A99;">${bucket} days</td><td style="padding:4px 0;font-weight:700;">${amount}</td></tr>`)
+    .map(({ bucket, amount }) => `<tr><td style="padding:4px 12px 4px 0;color:#6B7A99;">${bucket}</td><td style="padding:4px 0;font-weight:700;">${amount}</td></tr>`)
     .join('');
 
   const html = `
     <div style="font-family:sans-serif;max-width:480px;">
-      <p>Dear ${customer.contact_name || customer.name},</p>
-      <p>This is a friendly reminder that you have an outstanding balance with ${settings.company_name || 'us'}.</p>
-      <p style="font-size:20px;font-weight:800;color:#1B3A6B;margin:16px 0;">${balance}</p>
-      ${agingRows ? `<table style="border-collapse:collapse;margin-bottom:16px;">${agingRows}</table>` : ''}
-      <p>Please arrange payment at your earliest convenience. If you've already paid, kindly disregard this message.</p>
-      <p>Thank you for your business with ${companyName}.</p>
+      <p style="font-size:17px;font-weight:800;color:#1B3A6B;margin:0 0 12px;">Gentle Reminder</p>
+      <p>Hi ${customer.contact_name || customer.name},</p>
+      <p>You have a total outstanding balance of <strong>${balance}</strong> with us.</p>
+      ${agingRows ? `
+        <p style="margin-bottom:6px;">Breakdown by age:</p>
+        <table style="border-collapse:collapse;margin-bottom:16px;">${agingRows}</table>
+      ` : ''}
+      <p>Please arrange payment at your earliest convenience. Thank you!</p>
+      <p>${companyName}</p>
     </div>
   `;
 
@@ -56,7 +59,7 @@ export async function sendReminderEmail(env, { customer, rollup, settings }) {
     body: JSON.stringify({
       from: fromAddress,
       to: [customer.contact_email],
-      subject: `Payment Reminder — ${balance} outstanding`,
+      subject: `Gentle Reminder — ${balance} outstanding`,
       html,
     }),
   });
@@ -73,15 +76,15 @@ export function buildWhatsAppLink({ customer, rollup, settings }) {
   if (!customer.contact_phone) return null;
 
   const currency = settings.currency || 'NPR';
-  const companyName = settings.company_name || 'us';
+  const companyName = settings.company_name || 'Mercantile';
   const balance = formatMoneyPlain(rollup.outstanding_balance, currency);
 
   const lines = agingLines(rollup.aging_summary || {}, currency);
   const agingText = lines.length
-    ? `\n\nBreakdown by age:\n${lines.map(({ bucket, amount }) => `- ${bucket} days: ${amount}`).join('\n')}`
+    ? `\n\nBreakdown by age:\n${lines.map(({ bucket, amount }) => `- ${bucket} : ${amount}`).join('\n')}`
     : '';
 
-  const message = `Hi ${customer.contact_name || customer.name}, this is a reminder that you have an outstanding balance of ${balance} with ${companyName}.${agingText}\n\nPlease arrange payment at your earliest convenience. Thank you!`;
+  const message = `Gentle Reminder\nHi ${customer.contact_name || customer.name}, you have a total outstanding balance of ${balance} with us.${agingText}\n\nPlease arrange payment at your earliest convenience. Thank you!\n${companyName}`;
 
   // wa.me needs digits only (with country code, no leading +).
   const digits = String(customer.contact_phone).replace(/\D/g, '');
