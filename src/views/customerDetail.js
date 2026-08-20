@@ -16,9 +16,10 @@ export function renderCustomerDetail({ customer, rollup, invoices, payments }, c
         ${customer.contact_name ? `${escapeHtml(customer.contact_name)} · ` : ''}
         ${customer.account_owner ? `Owner: ${escapeHtml(customer.account_owner)}` : 'No owner assigned'}
       </div>
-      <button class="remind-btn" id="remind-btn">
-        📨 Send Reminder
-      </button>
+      <div class="remind-btn-row">
+        <button class="remind-btn" id="remind-email-btn">✉️ Email</button>
+        <button class="remind-btn whatsapp" id="remind-whatsapp-btn">💬 WhatsApp</button>
+      </div>
     </div>
 
     <div class="kpi-row">
@@ -98,15 +99,20 @@ export function renderCustomerDetail({ customer, rollup, invoices, payments }, c
 export function wireCustomerDetail(container, { onAddInvoice, onRecordPayment, onRemind }) {
   container.querySelector('#add-invoice-btn')?.addEventListener('click', onAddInvoice);
   container.querySelector('#record-payment-btn')?.addEventListener('click', onRecordPayment);
-  const remindBtn = container.querySelector('#remind-btn');
-  remindBtn?.addEventListener('click', async () => {
-    remindBtn.disabled = true;
-    remindBtn.textContent = 'Sending…';
-    try {
-      await onRemind();
-    } finally {
-      remindBtn.disabled = false;
-      remindBtn.textContent = '📨 Send Reminder';
-    }
-  });
+
+  function wireRemindButton(id, channel, defaultLabel) {
+    const btn = container.querySelector(id);
+    btn?.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        await onRemind(channel);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = defaultLabel;
+      }
+    });
+  }
+  wireRemindButton('#remind-email-btn', 'email', '✉️ Email');
+  wireRemindButton('#remind-whatsapp-btn', 'whatsapp', '💬 WhatsApp');
 }

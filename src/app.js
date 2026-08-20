@@ -230,17 +230,20 @@ export function mountApp(root, { email, onLogout }) {
           wireCustomerDetail(scrollArea, {
             onAddInvoice: () => navigate('addInvoice', { customerId: view.params.customerId, fromCustomerId: view.params.customerId }),
             onRecordPayment: () => navigate('recordPayment', { customerId: view.params.customerId, fromCustomerId: view.params.customerId }),
-            onRemind: async () => {
+            onRemind: async (channel) => {
               try {
-                const result = await api.remindCustomer(view.params.customerId);
-                const emailMsg = result.email?.sent
-                  ? 'Reminder email sent.'
-                  : `Email not sent: ${result.email?.reason || 'unknown reason'}`;
-                if (result.whatsapp_link) {
-                  showToast(`${emailMsg} Opening WhatsApp…`);
-                  window.open(result.whatsapp_link, '_blank');
-                } else {
-                  showToast(`${emailMsg} No phone number on file for WhatsApp.`);
+                const result = await api.remindCustomer(view.params.customerId, channel);
+                if (channel === 'email') {
+                  showToast(result.email?.sent
+                    ? 'Reminder email sent.'
+                    : `Email not sent: ${result.email?.reason || 'unknown reason'}`);
+                } else if (channel === 'whatsapp') {
+                  if (result.whatsapp_link) {
+                    showToast('Opening WhatsApp…');
+                    window.open(result.whatsapp_link, '_blank');
+                  } else {
+                    showToast('No phone number on file for this customer.');
+                  }
                 }
               } catch (err) {
                 showToast(err?.message || 'Could not send reminder.');

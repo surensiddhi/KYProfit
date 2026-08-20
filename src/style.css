@@ -397,9 +397,10 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
 .customer-detail-header { padding: 16px 14px; }
 .customer-detail-name { font-size: 17px; font-weight: 800; }
 .customer-detail-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.remind-btn-row { display: flex; gap: 8px; margin-top: 10px; }
 .remind-btn {
-  margin-top: 10px;
-  background: var(--green);
+  flex: 1;
+  background: var(--navy-l);
   border: none;
   border-radius: 10px;
   padding: 9px 14px;
@@ -408,8 +409,9 @@ select.field-input:disabled { background-color: var(--bg); color: var(--muted); 
   color: white;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 3px 10px rgba(0,196,140,0.3);
+  box-shadow: 0 3px 10px rgba(27,58,107,0.3);
 }
+.remind-btn.whatsapp { background: #25D366; box-shadow: 0 3px 10px rgba(37,211,102,0.35); }
 .remind-btn:disabled { background: var(--bg); color: var(--muted); box-shadow: none; cursor: default; }
 
 /* ── Toast ── */

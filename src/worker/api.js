@@ -85,6 +85,11 @@ export async function handleApiRoutes(request, env, url) {
       const session = await requireSession(request, env);
       if (!session) return jsonResponse({ error: 'Not authenticated' }, 401);
       const customerId = remindMatch[1];
+      const body = await request.json().catch(() => ({}));
+      // channel lets the two Send Reminder buttons (Email / WhatsApp) trigger
+      // only the one the user tapped, instead of always firing both together.
+      const channel = body.channel === 'email' || body.channel === 'whatsapp' ? body.channel : 'both';
+
       const customer = await getCustomerById(env, customerId);
       if (!customer) return jsonResponse({ error: 'Customer not found' }, 404);
 
@@ -93,10 +98,12 @@ export async function handleApiRoutes(request, env, url) {
       ]);
       const rollup = customerRollup(customer, invoices, payments, settings);
 
-      const [emailResult, whatsappLink] = await Promise.all([
-        sendReminderEmail(env, { customer, rollup, settings }),
-        Promise.resolve(buildWhatsAppLink({ customer, rollup, settings })),
-      ]);
+      const emailResult = channel !== 'whatsapp'
+        ? await sendReminderEmail(env, { customer, rollup, settings })
+        : null;
+      const whatsappLink = channel !== 'email'
+        ? buildWhatsAppLink({ customer, rollup, settings })
+        : null;
 
       return jsonResponse({ email: emailResult, whatsapp_link: whatsappLink });
     })();
