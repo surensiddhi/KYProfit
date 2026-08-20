@@ -267,3 +267,60 @@ console.log(await (await fetch('/api/dashboard')).json());
 Check that the dashboard response shows the new customer with the right outstanding balance (10000 − 4000 = 6000) and a non-null aging bucket. If anything looks off numerically, flag it — M6 is specifically for stress-testing these formulas against real invoices, but catching an obvious miscalculation now saves rework later.
 
 Once this checks out, remove the test customer/invoice/payment rows from your Sheet, and we'll move to **M5 — Frontend views** (the actual Add Customer, Add Invoice, Record Payment, Customer Detail, and Settings screens, replacing these console/curl tests with real UI).
+
+---
+
+## M5: Frontend views
+
+### 1. Update your local project
+
+New files:
+- `src/app.js` (new — the post-login app shell: top bar, bottom nav, FAB action sheet, and view routing)
+- `src/lib/api.js` (new — fetch wrapper used by every view)
+- `src/lib/format.js` (new — currency/date/percent formatting helpers)
+- `src/views/customers.js` (new — Customers tab)
+- `src/views/customerDetail.js` (new — Customer Detail screen)
+- `src/views/addCustomer.js` (new — Add Customer form)
+- `src/views/addInvoice.js` (new — Add Invoice form, with a live Gross Profit preview)
+- `src/views/recordPayment.js` (new — Record Payment form, with a live Outstanding Balance preview)
+- `src/views/settings.js` (new — Settings form)
+
+Overwrite these existing files:
+- `src/main.js` (now boots either the Login screen or the app shell)
+- `src/views/dashboard.js` (now renders real data from `/api/dashboard` instead of the M1 placeholder)
+- `src/style.css` (adds styles for forms, the customer list, aging cards, the FAB action sheet, etc.)
+
+No new dependencies, no new secrets — this milestone is pure frontend on top of the M4 API.
+
+### 2. What's in the app now
+
+- **Bottom nav**: Dashboard / **+** / Customers
+- **+ button**: opens a bottom sheet with Add Customer / Add Invoice / Record Payment
+- **Dashboard**: KPI cards, an aging summary, and a tappable customer profitability list — tap any customer to open their detail screen
+- **Customer Detail**: KPI strip, aging breakdown, and a combined invoice+payment history feed, plus quick "+ Add Invoice" / "+ Record Payment" buttons scoped to that customer
+- **Settings**: reachable via the ⚙ icon next to your avatar on Dashboard/Customers
+- The "Send Reminder" button on Customer Detail is visible but disabled for now — that's M7, not built yet
+
+### 3. Commit and push
+
+```bash
+git add .
+git commit -m "M5: frontend views — Dashboard, Customers, Add Customer/Invoice, Record Payment, Settings"
+git push
+```
+
+### 4. Verify — the full loop
+
+This is the real end-to-end test, no console scripts needed:
+
+1. Log in — you should land on the Dashboard, showing whatever's already in your Sheet
+2. Tap **+** → **Add Customer** → fill in a name → Save — confirm it lands you back on the Customers tab and the new customer appears
+3. Tap **+** → **Add Invoice** → pick that customer, enter a revenue amount, watch the Gross Profit preview update live as you type → Save
+4. Tap **+** → **Record Payment** → pick the same customer → the invoice you just created should appear in the "Apply to Invoice" dropdown showing its outstanding balance → enter a partial amount, watch the "Outstanding After This Payment" preview update → Save
+5. Go to the Dashboard — confirm the customer's numbers reflect the invoice and payment
+6. Tap the customer row → Customer Detail → confirm the KPI strip, aging bucket, and history (invoice + payment) all look right
+7. Tap the ⚙ icon → change Cost of Capital % → Save → confirm it shows "Settings saved" and the Dashboard's carrying-cost-driven numbers shift accordingly on your next visit
+
+If anything renders blank, shows a raw error, or a button doesn't respond, tell me exactly what you tapped and what happened (or send a screenshot) — that's usually enough for me to spot it immediately.
+
+Once this loop works end-to-end, we'll move to **M6 — Aging + DSO engine**, which is specifically about stress-testing the formulas you just watched work against a handful of real invoices, to make sure the numbers are trustworthy before you rely on them day to day.

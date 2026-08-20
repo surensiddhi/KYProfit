@@ -272,3 +272,171 @@ input.field-input:focus {
   width: 100%;
 }
 .login-btn:disabled { opacity: 0.7; cursor: default; }
+
+/* ── Top bar extras ── */
+.top-bar-actions { display: flex; align-items: center; gap: 10px; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: none; color: white; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ── Forms (Add Customer / Invoice / Payment / Settings) ── */
+.form-screen { display: flex; flex-direction: column; gap: 4px; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field-group { flex: 1; }
+.field-hint { font-size: 11px; color: var(--muted); margin-top: -6px; }
+textarea.field-input { resize: vertical; font-family: inherit; }
+select.field-input { appearance: none; background-color: white; }
+
+.form-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.form-success {
+  background: rgba(0,196,140,0.1);
+  border: 1px solid rgba(0,196,140,0.3);
+  color: #067a5a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.preview-card {
+  background: rgba(27,58,107,0.06);
+  border: 1px dashed var(--navy-l);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0 8px;
+}
+.preview-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.preview-value { font-size: 15px; font-weight: 800; color: var(--navy); }
+.preview-value.negative { color: var(--red); }
+
+.link-btn {
+  background: none; border: none; color: var(--navy);
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+
+/* ── Customer list rows ── */
+.customer-list { display: flex; flex-direction: column; }
+.customer-row {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; padding: 13px 14px; border: none; background: none;
+  border-bottom: 1px solid var(--border); cursor: pointer; text-align: left;
+  font-family: inherit;
+}
+.customer-row:last-child { border-bottom: none; }
+.customer-row-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.customer-row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.customer-row-metrics { text-align: right; }
+.customer-row-profit { font-size: 13px; font-weight: 800; color: var(--green); }
+.customer-row-profit.negative { color: var(--red); }
+
+/* ── Aging summary ── */
+.aging-card { padding: 4px 14px; }
+.aging-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.aging-row:last-child { border-bottom: none; }
+.aging-bucket-label { font-weight: 600; color: var(--muted); }
+.aging-bucket-value { font-weight: 800; color: var(--text); }
+.aging-row.aging-91 .aging-bucket-value { color: var(--red); }
+.aging-row.aging-46-90 .aging-bucket-value { color: var(--amber); }
+
+/* ── Customer detail ── */
+.customer-detail-header { padding: 16px 14px; }
+.customer-detail-name { font-size: 17px; font-weight: 800; }
+.customer-detail-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.remind-btn {
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: not-allowed;
+  font-family: inherit;
+}
+
+.detail-actions { display: flex; gap: 10px; margin-top: 4px; }
+.secondary-btn {
+  flex: 1;
+  background: white;
+  border: 1.5px solid var(--navy-l);
+  color: var(--navy);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.history-list { display: flex; flex-direction: column; }
+.history-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+}
+.history-row:last-child { border-bottom: none; }
+.history-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+  background: var(--bg);
+}
+.history-title { font-size: 12px; font-weight: 700; color: var(--text); }
+.history-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ── FAB action sheet ── */
+.action-sheet {
+  position: fixed; inset: 0; z-index: 40;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.action-sheet.show { display: flex; }
+.action-sheet-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(15,35,71,0.45);
+}
+.action-sheet-card {
+  position: relative;
+  width: 100%; max-width: 480px;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 14px max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.action-sheet-item {
+  background: none; border: none;
+  text-align: left;
+  padding: 14px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+}
+.action-sheet-item:last-of-type { border-bottom: none; }
+.action-sheet-item.cancel { color: var(--muted); text-align: center; font-weight: 700; margin-top: 4px; }
