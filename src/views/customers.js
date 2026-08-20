@@ -20,7 +20,7 @@ export function renderCustomersList(customers) {
       </div>
     ` : `
       <input class="search-input" id="customer-list-search" type="search" placeholder="Search customers…">
-      <div class="card customer-list" id="customer-list">
+      <div class="customer-list" id="customer-list">
         ${customers.map((c) => `
           <div class="customer-list-row" data-customer-id="${escapeHtml(c.customer_id)}" data-customer-name="${escapeHtml(c.name.toLowerCase())}">
             <div class="customer-list-row-main" data-customer-open="${escapeHtml(c.customer_id)}">

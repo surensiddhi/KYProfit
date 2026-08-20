@@ -65,7 +65,7 @@ export function renderDashboard(dashboard, currency) {
       </div>
     ` : `
       <input class="search-input" id="customer-profitability-search" type="search" placeholder="Search customers…">
-      <div class="card customer-list" id="customer-profitability-list">
+      <div class="customer-list" id="customer-profitability-list">
         ${customers.map((c) => `
           <button class="customer-row" data-customer-id="${escapeHtml(c.customer_id)}" data-customer-name="${escapeHtml(c.name.toLowerCase())}">
             <div class="customer-row-main">
